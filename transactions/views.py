@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import Q
+from decimal import Decimal
 from .models import TokenTransaction, Reward
 from .serializers import TokenTransactionSerializer, RewardSerializer
 from accounts.models import User
@@ -15,9 +16,12 @@ class TokenTransactionListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return TokenTransaction.objects.filter(
-            Q(sender=user) | Q(receiver=user)
-        ).order_by("-created_at")
+
+        if user.is_authenticated:
+            return TokenTransaction.objects.filter(
+                Q(sender=user) | Q(receiver=user)
+            ).order_by("-created_at")
+        return TokenTransaction.objects.none()
 
 
 @api_view(["POST"])
@@ -30,7 +34,7 @@ def send_tokens(request):
 
     try:
         receiver = User.objects.get(username=receiver_username)
-        amount = float(amount)
+        amount = Decimal(str(amount))
 
         if sender.token_balance < amount:
             return Response(
@@ -60,3 +64,4 @@ def send_tokens(request):
 class RewardListView(generics.ListAPIView):
     queryset = Reward.objects.filter(is_active=True)
     serializer_class = RewardSerializer
+    permission_classes = [IsAuthenticated]
