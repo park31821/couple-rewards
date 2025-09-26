@@ -9,4 +9,5 @@ urlpatterns = [
     ),
     path("api/send-tokens/", views.send_tokens, name="send-tokens"),
     path("api/rewards/", views.RewardListView.as_view(), name="reward-list"),
+    path("api/purchase-reward/", views.purchase_reward, name="purchase-reward"),
 ]
