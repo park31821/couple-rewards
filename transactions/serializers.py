@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import TokenTransaction, Reward
-from accounts.models import User
 
 
 class TokenTransactionSerializer(serializers.ModelSerializer):
